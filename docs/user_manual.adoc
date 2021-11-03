@@ -1,0 +1,71 @@
+= User Manual
+:toc:
+:sectnums:
+:imagesdir: images/user_manual/
+
+== Base functionality
+* Adaptable status checks - use PreCommit.groovy File - editable to your desire.
+* Review - developer is not allowed to review automatically created pull requests with his/her changes.
+* merge through branches
+* Mergeconflict while automatic merge - creation of pull request - commit instruction file how to solve mergeconflict
+
+== Set Up MergeBot Configuration Files
+Adapt all configuration files from the repository: OS_MergeBotConfig to your needs.
+
+* `config.json` - Configuration file for the MergeBot application.
+* `MergeTriggerRules.json` - provides the order of protected branches where the changes should be merged automatically.
+* `PreCommit.groovy` - place to implement status checks which should be executed before pull request merge.
+* `StatusChecksMessages.json` - provides the status check header and text for the corresponding error code from PreCommit.groovy
+* `PostCommit.groovy` - performs any action after pull request merge.
+* `mb_mergeconflictinstructions.deleteme.md` - provides instructions for the user how to handle a failed automatic cherry pick due to a merge conflict. Placeholders like \_sha1_ or tmpFromBranchErrorName and further more will be replaced during runtime (when a merge conflict occurs) with the specific information from the according pull request/commit.
+
+== Settings on repository for MergeBot use
+Create a technical user (Username/Token) with administration rights on your repository. You need to enter the user and token in MergeBot/Event.java. It is absolutely not perfect to have this information directly hardcoded, I am working on a solution.
+
+* `Settings/Options`: Disable all merge buttons except for "Allow squash merging". Reason: the MergeBot does a cherry pick for the automatic merges, if the commits on the original pull request are not squashed it can be the case to cherry pick multiple commits, but this is not possible. The cherry pick can only handle a squashed commit.
+* `Settings/Branches`: make all branches mentioned in MergeTriggerRules.json protected. Do not forget to tick the box "Require status checks to pass before merging" if checks from PreCommit.groovy must be passed before merge.
+* `Settings/Hooks`: Create a webhook which sends payloads to the server where the MergeBot application is running. Make sure to use the same port as specified in config.json.
+* `Create the following Labels (they can be used to enforce different behavior for pull requests)` :
+
+image::MergeBotLabels.jpg[]
+
+== Start MergeBot
+use:
+```bash
+mvn package
+```
+to create an executable shaded-jar.
+
+Place the shaded-jar-file on your server and also put config.json, MergeTriggerRules.json, PreCommit.groovy, StatusCheckMessages.json and PostCommit.groovy in the same folder.
+Start the shaded-jar-file using:
+
+```bash
+ java -jar YourFreshlyCreatedShadedJarFile.jar <PAHT TO config.json>
+```
+
+Redeliver the initial webhook to check if the connection works. Response code should be: 200
+
+== Workflow
+Basically all you have to do is create a feature branch, commit your changes, open a Pull Request, Review and hit the button "squash and merge", all the other action is done by the MergeBot.
+ +
+Your feature branch must have the following structure:
+ 
+```bash
+<reponame or any identifier>/<base branch of the feature branch>/<feature branch name (can contain further / )>/.../.../...
+```
+Another option for creating feature branches following the convention for the MergeBot is using:
+GEM (Git Environment Manager) which you can find here: https://github.com/aposin/gem[GEM].
+
+For every branch defined in MergeTriggerRules.json a pull request is automatically created and merged. The following scenarios are possible:
+
+* `Perfect merge`: nothing to do for you - your changes are merged in every branch without any troubles.
+
+* `Merge Conflict`: On one of the automatically created Pull Request a merge conflict occurred. To be more precise: the MergeBot was not able to execute a automatic cherry pick and you have to do it manually. 
+ +
+The MergeBot pushed a file to the Pull Request where the automatic merge was not possible with further instructions (mb_mergeconflictinstructions.deleteme.md). Basically the head branch of the Pull Request needs to be checked out and the cherry pick has to be done manually.
+
+* `Label: manual`: If this label is set to the initial Pull Request (the one the developer created) the changes are propagated to an automatically created feature branch from the next branch defined in MergeTriggerRules.json but not merged. The user is able to commit additional changes etc.
+
+* `Label: no-porting`: The initial Pull Request is merged but no further action is taken. Basically a merge as it would be without the MergeBot.
+
+* `Label: rerun-check`: If there are any troubles regarding the Status checks – using this label they can be retriggered.

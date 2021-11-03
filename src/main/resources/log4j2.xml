@@ -1,0 +1,28 @@
+<Configuration status="off">
+    <Appenders>
+        <Console name="LogToConsole" target="SYSTEM_OUT">
+            <PatternLayout pattern="%d{HH:mm:ss.SSS} [%t] %-5level %logger{36} - %msg%n"/>
+        </Console>
+        <RollingFile name="LogToRollingFile" fileName="${ctx:fileName}.log"
+                   filePattern="${ctx:fileName}%d{yyyy-MM-ww}.log.zip">
+            <PatternLayout>
+                <Pattern>[%d{dd/MMM/yyyy HH:mm:ss,SSS}] - %c{1}: %m%n</Pattern>
+            </PatternLayout>
+            <Policies>
+                <TimeBasedTriggeringPolicy />
+                <SizeBasedTriggeringPolicy size="20 MB"/>
+            </Policies>
+        </RollingFile>
+    </Appenders>
+    
+    <Loggers>
+        <!-- avoid duplicated logs with additivity=false -->
+        <Logger name="org.opin.mergebot" level="debug" additivity="false">
+            <AppenderRef ref="LogToRollingFile"/>
+        </Logger>
+        <Root level="off">
+            <AppenderRef ref="LogToConsole"/>
+        </Root>
+    </Loggers>
+</Configuration>
+
