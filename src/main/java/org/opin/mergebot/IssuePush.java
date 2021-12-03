@@ -48,54 +48,58 @@ public class IssuePush extends Event {
 		StringBuilder builder = new StringBuilder();
 		String aux = null;
 		String text = null;
-		try(BufferedReader readerIncoming = incoming.getReader();){
+		try (BufferedReader readerIncoming = incoming.getReader();) {
 			while ((aux = readerIncoming.readLine()) != null) {
 				builder.append(aux);
 			}
 			text = builder.toString();
-		} catch (IOException e){
+		} catch (IOException e) {
 			logger.info("payload can not be read.", e);
-		} 
-			try {
-				github = GitHub.connectToEnterpriseWithOAuth(Event.API_URL, Event.USER,
-						Event.TOKEN);
+		}
+		try {
+			github = GitHub.connectToEnterpriseWithOAuth(Event.API_URL, Event.USER, Event.TOKEN);
 
 			Push push = github.parseEventPayload(new StringReader(text), Push.class);
 			GHRepository ghRepo = github.getRepository(push.getRepository().getFullName());
-			List<PushCommit> list = push.getCommits();
-			ArrayList<String> modified = new ArrayList<>();
-			list.forEach(c -> {
+			logger.info("PUSH REF {}", push.getRef());
+			logger.info("DEFUALT Branch {}{}", Event.REFS_HEADS_PATH, ghRepo.getDefaultBranch());
+
+			if (push.getRef().equals(Event.REFS_HEADS_PATH + ghRepo.getDefaultBranch())) {
+				List<PushCommit> list = push.getCommits();
+				ArrayList<String> modified = new ArrayList<>();
+				list.forEach(c -> {
 					modified.addAll(c.getModified());
 					modified.addAll(c.getAdded());
-			});
-			modified.forEach(m -> logger.info("REPO {} Modified::: {}",ghRepo.getFullName(), m));
-			if (!modified.isEmpty()) {
-				modified.forEach(f -> {
-					try {
-						Files.deleteIfExists(Paths.get(Event.ABSOLUTE_PATH_CONFIGURATION_FILES + f));
-						updateFileOnServer(ghRepo, Event.ABSOLUTE_PATH_CONFIGURATION_FILES + f, f);
-					} catch (IOException e) {
-						logger.error("Delete MergeTriggerRules/Scripts or create Problem", e);
-					}
 				});
+				modified.forEach(m -> logger.info("REPO {} Modified::: {}", ghRepo.getFullName(), m));
+				if (!modified.isEmpty()) {
+					modified.forEach(f -> {
+						try {
+							Files.deleteIfExists(Paths.get(Event.ABSOLUTE_PATH_CONFIGURATION_FILES + f));
+							updateFileOnServer(ghRepo, Event.ABSOLUTE_PATH_CONFIGURATION_FILES + f, f);
+						} catch (IOException e) {
+							logger.error("Delete MergeTriggerRules/Scripts or create Problem", e);
+						}
+					});
 
+				}
 			}
 			github.refreshCache();
-			} catch (IOException i) {
-				logger.info("Can not log in to repository", i);
-			}
+		} catch (IOException i) {
+			logger.info("Cannot log in to repository", i);
+		}
 	}
 
 	private void updateFileOnServer(GHRepository ghRepo, String filePath, String fileName) {
 		GHContent contentFile;
 		try {
-		contentFile = ghRepo.getFileContent(fileName, ghRepo.getDefaultBranch());
-		InputStream streamFile = contentFile.read();
-		File file = new File(filePath);
-		java.nio.file.Files.copy(streamFile, file.toPath(), StandardCopyOption.REPLACE_EXISTING);
-		streamFile.close();
+			contentFile = ghRepo.getFileContent(fileName, ghRepo.getDefaultBranch());
+			InputStream streamFile = contentFile.read();
+			File file = new File(filePath);
+			java.nio.file.Files.copy(streamFile, file.toPath(), StandardCopyOption.REPLACE_EXISTING);
+			streamFile.close();
 		} catch (IOException o) {
-			logger.info("REPO {} can not update file on server {}",ghRepo.getFullName(), fileName, o);
+			logger.info("REPO {} can not update file on server {}", ghRepo.getFullName(), fileName, o);
 		}
 	}
 }
