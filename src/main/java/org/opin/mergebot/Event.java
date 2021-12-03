@@ -66,7 +66,6 @@ public abstract class Event {
 	protected static final String MERGEBOT_ID = "MB";
 	static final String PATH_MERGE_TRIGGERS = String.valueOf(WebhookListener.configuration.get("PATH_MERGE_TRIGGERS"));
 	static final String PATH_STATUS_CHECK_MESSAGES = String.valueOf(WebhookListener.configuration.get("PATH_STATUS_CHECK_MESSAGES"));
-	static final String PATH_MAINTAINER = provideMaintainerFilePathIfPresent();
 	static final String PATH_MERGE_CONFLICT_INSTRUCTIONS = String.valueOf(WebhookListener.configuration.get("PATH_MERGE_CONFLICT_INSTRUCTIONS"));
 
 	static final String MB_BRANCH_EXISTS_DETAIL = "Please delete: ";
@@ -137,7 +136,6 @@ public abstract class Event {
 			scriptInputPre.setInitialDeveloper(initialDeveloper);
 			scriptInputPre.setReviewerList(getRequestedReviewer(existingPullRequest));
 			scriptInputPre.setReviewSubmitterList(getReviewSubmitterList(existingPullRequest));
-			scriptInputPre.setMaintainerFilePath(PATH_MAINTAINER);
 			ScriptInputToJson toJson = new ScriptInputToJson();
 			toJson.createScriptInputAsJson(scriptInputPre, preFile);
 			if (preFile.exists()) {
@@ -256,15 +254,6 @@ public abstract class Event {
 		return submittedList;
 	}
 	
-	private static String provideMaintainerFilePathIfPresent() {
-		String maintainerFilePath = String.valueOf(WebhookListener.configuration.get("PATH_MAINTAINER"));
-				return 
-					(maintainerFilePath == null 
-					|| maintainerFilePath.isEmpty() 
-					|| maintainerFilePath.equals("NO_MAINTAINER_FILE"))
-					? "NO_MAINTAINER_FILE" : String.valueOf(WebhookListener.configuration.get("PATH_MAINTAINER"));
-	}
-
 	private List<String> splitUpCommitMessages(PagedIterable<GHPullRequestCommitDetail> pagedIterable) {
 		List<String> commitMessagesList = new ArrayList<>();
 		pagedIterable.forEach(commit -> commitMessagesList.add(commit.getCommit().getMessage()));

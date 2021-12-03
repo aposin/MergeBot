@@ -27,7 +27,6 @@ public class ScriptInputPre{
 	private String initialDeveloper;
 	private List<String> reviewerList;
 	private List<String> reviewSubmitterList;
-	private String maintainerFilePath;
 	
 	public List<FilesToMerge> getFilesToMerge() {
 		return filesToMerge;
@@ -75,13 +74,6 @@ public class ScriptInputPre{
 
 	public void setReviewerList(List<String> setReviewer) {
 		this.reviewerList = setReviewer;
-	}
-	public String getMaintainerFilePath() {
-		return maintainerFilePath;
-	}
-
-	public void setMaintainerFilePath(String maintainerFilePath) {
-		this.maintainerFilePath = maintainerFilePath;
 	}
 
 	public List<String> getReviewSubmitterList() {
