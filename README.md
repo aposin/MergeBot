@@ -4,13 +4,13 @@
 [MergeBot_Config/config.json]: https://github.com/aposin/MergeBot_Config/blob/main/config.json
 
 MergeBot is a tool for automatically merge changes to several branches using pull requests.
-Furthermore it is able to execute Status checks on commits, detect self-reviews, link automatically created pull request with each other and execute post actions (after pull request merge).
+Furthermore it is able to execute Status checks on commits, detect self-reviews, link automatically created pull requests with each other and execute post actions (after pull request merge).
 The Groovy-Scripts and MergeBot Configuration-File can be found in the repository [MergeBot_Config][MergeBot_Config].
 The configuration files must be adapted to your needs.
 Furthermore you can manipulate the workflow by using specific labels.
 
 * `rerun-check:` executes the status-checks again
-* `manual:` opens up the next pull, cherry picks the changes but do not merge them automatically.  
+* `manual:` opens up the next pull request, cherry picks the changes but do not merge them automatically.  
 * `no-porting:` the changes will not be merged automatically at all when closing your initial pull request.  
 
 For further information please read the [user_manual.adoc].
