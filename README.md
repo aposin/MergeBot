@@ -10,7 +10,7 @@ The configuration files must be adapted to your needs.
 Furthermore you can manipulate the workflow by using specific labels.
 
 * `rerun-check:` executes the status-checks again
-* `manual:` opens up the next pull, cherry picks the changes but do not merge them automatically.  
+* `manual:` opens up the next pull request, cherry picks the changes but do not merge them automatically.  
 * `no-porting:` the changes will not be merged automatically at all when closing your initial pull request.  
 
 For further information please read the [user_manual.adoc].
