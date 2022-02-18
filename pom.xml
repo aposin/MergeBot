@@ -16,7 +16,7 @@
 		<org.apache.httpcomponents.httpclient.version>4.5.13</org.apache.httpcomponents.httpclient.version>
 		<org.apache.httpcomponents.httpcore.version>4.4.14</org.apache.httpcomponents.httpcore.version>
 		<org.apache.ivy.version>2.5.0</org.apache.ivy.version>
-		<org.apache.logging.log4j.version>2.17.0</org.apache.logging.log4j.version>
+		<org.apache.logging.log4j.version>2.17.1</org.apache.logging.log4j.version>
 		<org.apache.maven.maven-core.version>3.8.2</org.apache.maven.maven-core.version>
 		<org.eclipse.jetty.version>11.0.6</org.eclipse.jetty.version>
 		<org.eclipse.sisu.plexus.version>0.3.5</org.eclipse.sisu.plexus.version>
